@@ -1,6 +1,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
+#include <kento_csgocolors>
 
 #pragma newdecls required
 
@@ -21,7 +22,7 @@ public Plugin myinfo =
 {
 	name = "[CS:GO] Emoji",
 	author = "Kento",
-	version = "1.0",
+	version = "1.1",
 	description = "Show me your love.",
 	url = "http://steamcommunity.com/id/kentomatoryoshika/"
 };
@@ -34,6 +35,8 @@ public void OnPluginStart()
 	Cvar_Duration.AddChangeHook(OnConVarChanged);
 
 	AutoExecConfig(true, "kento.emoji");
+
+	LoadTranslations("kento.emoji.phrases");
 }
 
 public void OnConfigsExecuted()
@@ -79,11 +82,14 @@ void LoadConfig()
 			strcopy(emojiName[emojiCount], sizeof(emojiName[]), name);
 			strcopy(emojiFile[emojiCount], sizeof(emojiFile[]), file);
 			strcopy(emojiFlag[emojiCount], sizeof(emojiFlag[]), flag);
-				
-			char filepath[1024];
-			Format(filepath, sizeof(filepath), "materials/%s", emojiFile[emojiCount]);
-			AddFileToDownloadsTable(filepath);
-			PrecacheModel(filepath, true);
+			
+			char vmtpath[1024];
+			Format(vmtpath, sizeof(vmtpath), "materials/%s.vmt", emojiFile[emojiCount]);
+			char vtfpath[1024];
+			Format(vtfpath, sizeof(vtfpath), "materials/%s.vtf", emojiFile[emojiCount]);
+			AddFileToDownloadsTable(vmtpath);
+			AddFileToDownloadsTable(vtfpath);
+			PrecacheModel(vmtpath, true);
 			
 			emojiCount++;
 		}
@@ -104,9 +110,16 @@ public Action Command_Emoji (int client, int args) {
 	GetCmdArg(1, name, sizeof(name));
 	StripQuotes(name);
 
-	int id = FindEmojiByName(name);
-
-	if(id > 0 && CanUseEmoji(client, id)) CreateEmoji(client, id);
+	if(StrEqual(name, "")) {
+		ShowEmojiMenu(client, 0);
+	} else {
+		int id = FindEmojiByName(name);
+		if(id > 0 && CanUseEmoji(client, id)) {
+			if(CanUseEmoji(client, id)) CreateEmoji(client, id);
+			else CPrintToChat(client, "%T", "No Flag", client);
+		} 
+		else CPrintToChat(client, "%T", "Not Found", client, name);
+	}
 }
 
 public Action DestroyTimer(Handle timer, any client) {
@@ -127,6 +140,34 @@ int FindEmojiByName(const char [] name)
 	return id;
 }
 
+void ShowEmojiMenu(int client, int start) {
+	Menu menu = new Menu(EmojiMenuHandler);
+
+	char title[1024];
+	Format(title, sizeof(title), "%T", "Menu Title", client);
+	menu.SetTitle(title);
+	
+	char tmp[32];
+	for (int i = 1; i <= emojiCount; i++) {
+		IntToString(i, tmp, sizeof(tmp));
+		menu.AddItem(tmp, emojiName[i]);
+	}
+
+	menu.DisplayAt(client, start, 0);
+}
+
+public int EmojiMenuHandler(Menu menu, MenuAction action, int client,int param)
+{
+	if(action == MenuAction_Select)
+	{
+		char sid[32];
+		menu.GetItem(param, sid, sizeof(sid));
+		int id = StringToInt(sid);
+		CreateEmoji(client, id);
+		ShowEmojiMenu(client, menu.Selection);
+	}
+}
+
 void CreateEmoji(int client, int id)
 {
 	if(spirit[client] != INVALID_ENT_REFERENCE) DestroyEmoji(client);
@@ -135,7 +176,10 @@ void CreateEmoji(int client, int id)
 	
 	if (IsValidEntity(ent))
 	{
-		DispatchKeyValue(ent, "model", emojiFile[id]);
+		char path[1024];
+		Format(path, sizeof(path), "materials/%s.vmt", emojiFile[id]);
+		
+		DispatchKeyValue(ent, "model", path);
 		DispatchSpawn(ent);
 
 		float pos[3];
@@ -157,6 +201,8 @@ void CreateEmoji(int client, int id)
 		// SDKHook(ent, SDKHook_SetTransmit, OnTrasnmit);
 
 		CreateTimer(duration, DestroyTimer, client);
+
+		CPrintToChat(client, "%T", "Displaying", client, emojiName[id]);
 	}
 }
 

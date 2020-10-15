@@ -1,0 +1,34 @@
+//**********************************************  Valid Colors	********************************************************
+// {NORMAL}, {DARKRED}, {PINK}, {YELLOW}, {GREEN}, {LIGHTGREEN}, {RED}, {GRAY}, {BLUE}, {DARKBLUE}, {PURPLE}, {ORANGE} *
+//**********************************************************************************************************************
+//                                     http://i.imgur.com/q2wb8Cu.png                                                  *
+//{NORMAL} = x01 | {DARKRED} = x02 | {PINK} = x03 | {GREEN} = x04 | {YELLOW} = x09 | {LIGHTGREEN} = x06 | {RED} = x07  *
+//{GRAY} = x08 | {BLUE} = x0B | {DARKBLUE} = x0C | {PURPLE} = x0E|  {ORANGE} = x10                                     *
+//**********************************************************************************************************************
+"Phrases"
+{
+	"Not Found"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[MVP] {RED} Emoji {PINK}{1} {RED}not found!"
+		"zho"			"{GREEN}[MVP] {RED} 找不到表情符號 {PINK}{1} {RED}!"
+	}
+	"No Flag"
+	{
+		"#format"		""
+		"en"			"{GREEN}[MVP] {RED}You don't have access to use this emoji."
+		"zho"			"{GREEN}[MVP] {RED}你沒有使用這個表情符號的權限."
+	}
+	"Displaying"
+	{
+		"#format"		"{1:s}"
+		"en"			"{GREEN}[MVP] {LIGHTGREEN}Displaying emoji {PINK}{1}{LIGHTGREEN}."
+		"zho"			"{GREEN}[MVP] {LIGHTGREEN}顯示表情符號 {PINK}{1}{LIGHTGREEN}."
+	}
+	"Menu Title"
+	{
+		"#format"		""
+		"en"			"Select Emoji"
+		"zho"			"選擇表情符號"
+	}
+}	
